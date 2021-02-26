@@ -46,26 +46,31 @@ struct RocketsListView: View {
                           dismissButton: alertItem.dismissButton)
                 }
             } else {
-                ScrollView {
-                    LazyVGrid(columns: viewModel.columns) {
-                        ForEach(viewModel.rockets) { rocket in
-                            RocketListCell(rocket: rocket)
-                                .onTapGesture {
-                                    viewModel.selectedRocket = rocket
-                                }
+                ZStack {
+                    ScrollView {
+                        LazyVGrid(columns: viewModel.columns) {
+                            ForEach(viewModel.rockets) { rocket in
+                                RocketListCell(rocket: rocket)
+                                    .onTapGesture {
+                                        viewModel.selectedRocket = rocket
+                                        viewModel.isShowingDetail = true
+                                    }
+                            }
                         }
+                        .navigationTitle("🚀 SpaceX Rockets")
+                        .onAppear {
+                            viewModel.getRockets()
+                        }
+                        .blur(radius: viewModel.isShowingDetail ? 20 : 0)
                     }
-                    .navigationTitle("🚀 SpaceX Rockets")
-                    .onAppear {
-                        viewModel.getRockets()
+                    if viewModel.isShowingDetail {
+                        RocketDetailView(rocket: viewModel.selectedRocket!, isShowingDetail: $viewModel.isShowingDetail)
                     }
                     
+                    if viewModel.isLoading {
+                        LoadingView()
+                    }
                 }
-                //This dosent appear to be allowed due to the 'if horizontalSizeClass' on line 16
-//                .sheet(isPresented: $viewModel.isShowingDetail) {
-//                    RocketDetailView(rocket: viewModel.selectedRocket, isShowingDetail: $viewModel.isShowingDetail)
-//                }
-                
             }
         }
     }
